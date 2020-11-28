@@ -25,18 +25,18 @@ LOGGER = userge.getLogger(__name__)
 
 
 @userge.on_cmd("download", about={
-    'header': "Download files to server",
+    'header': "Download Files to Server",
     'usage': "{tr}download [url | reply to telegram media]",
     'examples': "{tr}download https://speed.hetzner.de/100MB.bin | testing upload.bin"},
     check_downpath=True)
 async def down_load_media(message: Message):
-    """ download from tg and url """
+    """ Download From Telegram and URL """
     if message.reply_to_message and message.reply_to_message.media:
         resource = message.reply_to_message
     elif message.input_str:
         resource = message.input_str
     else:
-        await message.edit("Please read `.help download`", del_in=5)
+        await message.edit("Please Read `.help download`", del_in=5)
         return
     try:
         dl_loc, d_in = await handle_download(message, resource)
@@ -45,18 +45,18 @@ async def down_load_media(message: Message):
     except Exception as e_e:  # pylint: disable=broad-except
         await message.err(e_e)
     else:
-        await message.edit(f"Downloaded to `{dl_loc}` in {d_in} seconds")
+        await message.edit(f"Downloaded to `{dl_loc}` in {d_in} Seconds")
 
 
 async def handle_download(message: Message, resource: Union[Message, str]) -> Tuple[str, int]:
-    """ download from resource """
+    """ Download From Resource """
     if isinstance(resource, Message):
         return await tg_download(message, resource)
     return await url_download(message, resource)
 
 
 async def url_download(message: Message, url: str) -> Tuple[str, int]:
-    """ download from link """
+    """ Download From Link """
     await message.edit("`Downloading From URL...`")
     start_t = datetime.now()
     custom_file_name = unquote_plus(os.path.basename(url))
@@ -83,13 +83,13 @@ async def url_download(message: Message, url: str) -> Tuple[str, int]:
             "```[{}{}]```\n" + \
             "**Progress** : `{}%`\n" + \
             "**URL** : `{}`\n" + \
-            "**FILENAME** : `{}`\n" + \
+            "**File Name** : `{}`\n" + \
             "**Completed** : `{}`\n" + \
             "**Total** : `{}`\n" + \
             "**Speed** : `{}`\n" + \
             "**ETA** : `{}`"
         progress_str = progress_str.format(
-            "trying to download",
+            "Trying to Download",
             ''.join((Config.FINISHED_PROGRESS_STR
                      for i in range(math.floor(percentage / 5)))),
             ''.join((Config.UNFINISHED_PROGRESS_STR
@@ -110,8 +110,8 @@ async def url_download(message: Message, url: str) -> Tuple[str, int]:
 
 
 async def tg_download(message: Message, to_download: Message) -> Tuple[str, int]:
-    """ download from tg file """
-    await message.edit("`Downloading From TG...`")
+    """ Download From Telegram File """
+    await message.edit("`Downloading From Telegram...`")
     start_t = datetime.now()
     custom_file_name = Config.DOWN_PATH
     if message.filtered_input_str:
@@ -120,7 +120,7 @@ async def tg_download(message: Message, to_download: Message) -> Tuple[str, int]
         message=to_download,
         file_name=custom_file_name,
         progress=progress,
-        progress_args=(message, "trying to download")
+        progress_args=(message, "Trying to Download")
     )
     if message.process_is_canceled:
         raise ProcessCanceled
