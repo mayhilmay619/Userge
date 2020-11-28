@@ -52,7 +52,7 @@ _SAVED_SETTINGS = get_collection("CONFIGS")
 
 async def _init() -> None:
     global _CREDS  # pylint: disable=global-statement
-    _LOG.debug("Setting GDrive DBase...")
+    _LOG.debug("Setting Google Drive Database...")
     result = await _SAVED_SETTINGS.find_one({'_id': 'GDRIVE'}, {'creds': 1})
     _CREDS = pickle.loads(result['creds']) if result else None  # nosec
 
@@ -95,12 +95,12 @@ def creds_dec(func):
             await _refresh_creds()
             await func(self)
         else:
-            await self._message.edit("Please run `.gsetup` first", del_in=5)
+            await self._message.edit("Please Run `.gsetup` First", del_in=5)
     return wrapper
 
 
 class _GDrive:
-    """ GDrive Class For Search, Upload, Download, Copy, Move, Delete, EmptyTrash, ... """
+    """ Google Drive Class For Search, Upload, Download, Copy, Move, Delete, EmptyTrash, ... """
     def __init__(self) -> None:
         self._parent_id = _PARENT_ID or Config.G_DRIVE_PARENT_ID
         self._completed = 0
@@ -165,11 +165,11 @@ class _GDrive:
         if not msg:
             return "`Not Found!`"
         if parent_id and not force:
-            out = f"**List GDrive Folder** : `{parent_id}`\n"
+            out = f"**List Google Drive Folder** : `{parent_id}`\n"
         elif list_root and not force:
-            out = f"**List GDrive Root Folder** : `{self._parent_id}`\n"
+            out = f"**List Google Drive Root Folder** : `{self._parent_id}`\n"
         else:
-            out = f"**GDrive Search Query** : `{search_query}`\n"
+            out = f"**Google Drive Search Query** : `{search_query}`\n"
         return out + f"**Limit** : `{limit}`\n\n__Results__ : \n\n" + msg
 
     def _set_permission(self, file_id: str) -> None:
@@ -244,7 +244,7 @@ class _GDrive:
                     speed = round(uploaded / diff, 2)
                     eta = round((f_size - uploaded) / speed)
                     tmp = \
-                        "__Uploading to GDrive...__\n" + \
+                        "__Uploading to Google Drive...__\n" + \
                         "```[{}{}]({}%)```\n" + \
                         "**File Name** : `{}`\n" + \
                         "**File Size** : `{}`\n" + \
@@ -341,7 +341,7 @@ class _GDrive:
                     speed = round(downloaded / diff, 2)
                     eta = round((f_size - downloaded) / speed)
                     tmp = \
-                        "__Downloading From GDrive...__\n" + \
+                        "__Downloading From Google Drive...__\n" + \
                         "```[{}{}]({}%)```\n" + \
                         "**File Name** : `{}`\n" + \
                         "**File Size** : `{}`\n" + \
@@ -437,7 +437,7 @@ class _GDrive:
             body=body, fileId=file_id, supportsTeamDrives=True).execute()
         percentage = (self._completed / self._list) * 100
         tmp = \
-            "__Copying Files In GDrive...__\n" + \
+            "__Copying Files In Google Drive...__\n" + \
             "```[{}{}]({}%)```\n" + \
             "**Completed** : `{}/{}`"
         self._progress = tmp.format(
@@ -586,7 +586,7 @@ class _GDrive:
 
 
 class Worker(_GDrive):
-    """ Worker Class for GDrive """
+    """ Worker Class For Google Drive """
     def __init__(self, message: Message) -> None:
         self._message = message
         super().__init__()
@@ -605,7 +605,7 @@ class Worker(_GDrive):
         return out
 
     async def setup(self) -> None:
-        """ Setup GDrive """
+        """ Setup Google Drive """
         global _AUTH_FLOW  # pylint: disable=global-statement
         if _CREDS:
             await self._message.edit("`Already Setup!`", del_in=5)
@@ -621,10 +621,10 @@ class Worker(_GDrive):
                 text=reply_string, disable_web_page_preview=True)
 
     async def confirm_setup(self) -> None:
-        """ Finalize GDrive setup """
+        """ Finalize Google Drive Setup """
         global _AUTH_FLOW  # pylint: disable=global-statement
         if _AUTH_FLOW is None:
-            await self._message.edit("Please run `.gsetup` first", del_in=5)
+            await self._message.edit("Please Run `.gsetup` First", del_in=5)
             return
         await self._message.edit("Checking Auth Code...")
         try:
@@ -636,33 +636,33 @@ class Worker(_GDrive):
             _AUTH_FLOW = None
             await asyncio.gather(
                 _set_creds(cred),
-                self._message.edit("`Saved GDrive Creds!`", del_in=3, log=__name__))
+                self._message.edit("`Saved Google Drive Creds!`", del_in=3, log=__name__))
 
     async def clear(self) -> None:
         """ Clear Creds """
         await self._message.edit(await _clear_creds(), del_in=3, log=__name__)
 
     async def set_parent(self) -> None:
-        """ Set Parent id """
+        """ Set Parent ID """
         global _PARENT_ID  # pylint: disable=global-statement
         file_id, file_type = self._get_file_id()
         if file_type != "folder":
-            await self._message.err("Please send me a folder link")
+            await self._message.err("Please Send Me a Folder Link")
         else:
             _PARENT_ID = file_id
             await self._message.edit(
-                f"Parents set as `{file_id}` successfully", del_in=5)
+                f"Parents set as `{file_id}` Successfully", del_in=5)
 
     async def reset_parent(self) -> None:
-        """ Reset parent id """
+        """ Reset Parent ID """
         global _PARENT_ID  # pylint: disable=global-statement
         _PARENT_ID = ""
-        await self._message.edit("`Parents Reset successfully`", del_in=5)
+        await self._message.edit("`Parents Reset Successfully`", del_in=5)
 
     @creds_dec
     async def share(self) -> None:
-        """ get shareable link """
-        await self._message.edit("`Loading GDrive Share...`")
+        """ Get Shareable Link """
+        await self._message.edit("`Loading Google Drive Share...`")
         file_id, _ = self._get_file_id()
         try:
             out = await pool.run_in_thread(self._get_output)(file_id)
@@ -675,8 +675,8 @@ class Worker(_GDrive):
 
     @creds_dec
     async def search(self) -> None:
-        """ Search files in GDrive """
-        await self._message.edit("`Loading GDrive Search...`")
+        """ Search Files in Google Drive """
+        await self._message.edit("`Loading Google Drive Search...`")
         try:
             out = await self._search(
                 self._message.filtered_input_str, self._message.flags)
@@ -690,12 +690,12 @@ class Worker(_GDrive):
 
     @creds_dec
     async def make_folder(self) -> None:
-        """ Make folder in GDrive parent path """
+        """ Make Folder in Google Drive Parent Path """
         if not self._parent_id:
-            await self._message.edit("First set parent path by `.gset`", del_in=5)
+            await self._message.edit("First Set Parent Path By `.gset`", del_in=5)
             return
         if not self._message.input_str:
-            await self._message.edit("Please give name for folder", del_in=5)
+            await self._message.edit("Please Give Name For Folder", del_in=5)
             return
         try:
             out = await self._create_drive_folder(self._message.input_str, self._parent_id)
@@ -703,20 +703,20 @@ class Worker(_GDrive):
             _LOG.exception(h_e)
             await self._message.err(h_e._get_reason())  # pylint: disable=protected-access
             return
-        await self._message.edit(f"**Folder Created Successfully**\n\n{out}",
+        await self._message.edit(f"**Folder Created Successfully!**\n\n{out}",
                                  disable_web_page_preview=True, log=__name__)
 
     @creds_dec
     async def list_folder(self) -> None:
-        """ List files in GDrive folder or root """
+        """ List Files in Google Drive Folder or Root """
         file_id, file_type = self._get_file_id(filter_str=True)
         if not file_id and not self._parent_id:
-            await self._message.edit("First set parent path by `.gset`", del_in=5)
+            await self._message.edit("First Set Parent Path By `.gset`", del_in=5)
             return
         if file_id and file_type != "folder":
-            await self._message.err("Please send me a folder link")
+            await self._message.err("Please Send Me a Folder Link")
             return
-        await self._message.edit("`Loading GDrive List...`")
+        await self._message.edit("`Loading Google Drive List...`")
         root = not bool(file_id)
         try:
             out = await self._search('*', self._message.flags, file_id, root)
@@ -729,7 +729,7 @@ class Worker(_GDrive):
 
     @creds_dec
     async def upload(self) -> None:
-        """ Upload from file/folder/link/tg file to GDrive """
+        """ Upload From File/Folder/Link/Telegram File to Google Drive """
         replied = self._message.reply_to_message
         is_url = re.search(
             r"(?:https?|ftp)://[^\|\s]+\.[^\|\s]+", self._message.input_str)
@@ -754,14 +754,14 @@ class Worker(_GDrive):
                 return
         file_path = dl_loc if dl_loc else self._message.input_str
         if not os.path.exists(file_path):
-            await self._message.err("invalid file path provided?")
+            await self._message.err("Invalid File Path Provided?")
             return
         if "|" in file_path:
             file_path, file_name = file_path.split("|")
             new_path = os.path.join(os.path.dirname(file_path.strip()), file_name.strip())
             os.rename(file_path.strip(), new_path)
             file_path = new_path
-        await self._message.try_to_edit("`Loading GDrive Upload...`")
+        await self._message.try_to_edit("`Loading Google Drive Upload...`")
         pool.submit_thread(self._upload, file_path)
         start_t = datetime.now()
         count = 0
@@ -784,13 +784,13 @@ class Worker(_GDrive):
         elif self._output is not None and self._is_canceled:
             out = self._output
         else:
-            out = "`failed to upload.. check logs?`"
+            out = "`Failed to Upload.. Check Logs?`"
         await self._message.edit(out, disable_web_page_preview=True, log=__name__)
 
     @creds_dec
     async def download(self) -> None:
-        """ Download file/folder from GDrive """
-        await self._message.try_to_edit("`Loading GDrive Download...`")
+        """ Download File/Folder From Google Drive """
+        await self._message.try_to_edit("`Loading Google Drive Download...`")
         file_id, _ = self._get_file_id()
         pool.submit_thread(self._download, file_id)
         start_t = datetime.now()
@@ -812,16 +812,16 @@ class Worker(_GDrive):
         elif self._output is not None and self._is_canceled:
             out = self._output
         else:
-            out = "`failed to download.. check logs?`"
+            out = "`Failed to Download.. Check Logs?`"
         await self._message.edit(out, disable_web_page_preview=True, log=__name__)
 
     @creds_dec
     async def copy(self) -> None:
-        """ Copy file/folder in GDrive """
+        """ Copy File/Folder in Google Drive """
         if not self._parent_id:
-            await self._message.edit("First set parent path by `.gset`", del_in=5)
+            await self._message.edit("First Set Parent Path By `.gset`", del_in=5)
             return
-        await self._message.try_to_edit("`Loading GDrive Copy...`")
+        await self._message.try_to_edit("`Loading Google Drive Copy...`")
         file_id, _ = self._get_file_id()
         pool.submit_thread(self._copy, file_id)
         start_t = datetime.now()
@@ -843,16 +843,16 @@ class Worker(_GDrive):
         elif self._output is not None and self._is_canceled:
             out = self._output
         else:
-            out = "`failed to copy.. check logs?`"
+            out = "`Failed to Copy.. Check Logs?`"
         await self._message.edit(out, disable_web_page_preview=True, log=__name__)
 
     @creds_dec
     async def move(self) -> None:
-        """ Move file/folder in GDrive """
+        """ Move File/Folder in Google Drive """
         if not self._parent_id:
-            await self._message.edit("First set parent path by `.gset`", del_in=5)
+            await self._message.edit("First Set Parent Path By `.gset`", del_in=5)
             return
-        await self._message.edit("`Loading GDrive Move...`")
+        await self._message.edit("`Loading Google Drive Move...`")
         file_id, _ = self._get_file_id()
         try:
             link = await self._move(file_id)
@@ -861,12 +861,12 @@ class Worker(_GDrive):
             await self._message.err(h_e._get_reason())  # pylint: disable=protected-access
         else:
             await self._message.edit(
-                f"`{file_id}` **Moved Successfully**\n\n{link}", log=__name__)
+                f"`{file_id}` **Moved Successfully!**\n\n{link}", log=__name__)
 
     @creds_dec
     async def delete(self) -> None:
-        """ Delete file/folder in GDrive """
-        await self._message.edit("`Loading GDrive Delete...`")
+        """ Delete File/Folder in Google Drive """
+        await self._message.edit("`Loading Google Drive Delete...`")
         file_id, _ = self._get_file_id()
         try:
             await self._delete(file_id)
@@ -875,12 +875,12 @@ class Worker(_GDrive):
             await self._message.err(h_e._get_reason())  # pylint: disable=protected-access
         else:
             await self._message.edit(
-                f"`{file_id}` **Deleted Successfully**", del_in=5, log=__name__)
+                f"`{file_id}` **Deleted Successfully!**", del_in=5, log=__name__)
 
     @creds_dec
     async def empty(self) -> None:
-        """ Empty GDrive Trash """
-        await self._message.edit("`Loading GDrive Empty Trash...`")
+        """ Empty Google Drive Trash """
+        await self._message.edit("`Loading Google Drive Empty Trash...`")
         try:
             await self._empty_trash()
         except HttpError as h_e:
@@ -888,12 +888,12 @@ class Worker(_GDrive):
             await self._message.err(h_e._get_reason())  # pylint: disable=protected-access
         else:
             await self._message.edit(
-                "`Empty the Trash Successfully`", del_in=5, log=__name__)
+                "`Empty The Trash Successfully!`", del_in=5, log=__name__)
 
     @creds_dec
     async def get(self) -> None:
-        """ Get details for file/folder in GDrive """
-        await self._message.edit("`Loading GDrive GetDetails...`")
+        """ Get Details For File/Folder in Google Drive """
+        await self._message.edit("`Loading Google Drive Get Details...`")
         file_id, _ = self._get_file_id()
         try:
             meta_data = await self._get(file_id)
@@ -908,8 +908,8 @@ class Worker(_GDrive):
 
     @creds_dec
     async def get_perms(self) -> None:
-        """ Get all Permissions of file/folder in GDrive """
-        await self._message.edit("`Loading GDrive GetPermissions...`")
+        """ Get All Permissions of File/Folder in Google Drive """
+        await self._message.edit("`Loading Google Drive Get Permissions...`")
         file_id, _ = self._get_file_id()
         try:
             out = await self._get_perms(file_id)
@@ -917,15 +917,15 @@ class Worker(_GDrive):
             _LOG.exception(h_e)
             await self._message.err(h_e._get_reason())  # pylint: disable=protected-access
             return
-        out = f"**I Found these Permissions for** `{file_id}`\n\n{out}"
+        out = f"**I Found These Permissions For** `{file_id}`\n\n{out}"
         await self._message.edit_or_send_as_file(
             out, disable_web_page_preview=True,
             caption=f"view perm results for `{file_id}`")
 
     @creds_dec
     async def set_perms(self) -> None:
-        """ Set Permissions to file/folder in GDrive """
-        await self._message.edit("`Loading GDrive SetPermissions...`")
+        """ Set Permissions to File/Folder in Google Drive """
+        await self._message.edit("`Loading Google Drive Set Permissions...`")
         file_id, _ = self._get_file_id()
         try:
             link = await self._set_perms(file_id)
@@ -933,13 +933,13 @@ class Worker(_GDrive):
             _LOG.exception(h_e)
             await self._message.err(h_e._get_reason())  # pylint: disable=protected-access
         else:
-            out = f"**Set Permissions successfully for** `{file_id}`\n\n{link}"
+            out = f"**Set Permissions Successfully For** `{file_id}`\n\n{link}"
             await self._message.edit(out, disable_web_page_preview=True)
 
     @creds_dec
     async def del_perms(self) -> None:
-        """ Remove all permisiions of file/folder in GDrive """
-        await self._message.edit("`Loading GDrive DelPermissions...`")
+        """ Remove All Permisiions of File/Folder in Google Drive """
+        await self._message.edit("`Loading Google Drive Delete Permissions...`")
         file_id, _ = self._get_file_id()
         try:
             out = await self._del_perms(file_id)
@@ -947,91 +947,91 @@ class Worker(_GDrive):
             _LOG.exception(h_e)
             await self._message.err(h_e._get_reason())  # pylint: disable=protected-access
             return
-        out = f"**Removed These Permissions successfully from** `{file_id}`\n\n{out}"
+        out = f"**Removed These Permissions Successfully From** `{file_id}`\n\n{out}"
         await self._message.edit_or_send_as_file(
             out, disable_web_page_preview=True,
             caption=f"removed perm results for `{file_id}`")
 
 
 @userge.on_cmd("gsetup", about={
-    'header': "Setup GDrive Creds"})
+    'header': "Setup Google Drive Creds"})
 async def gsetup_(message: Message):
-    """ setup creds """
+    """ Setup Creds """
     await Worker(message).setup()
 
 
 @userge.on_cmd("gconf", about={
-    'header': "Confirm GDrive Setup",
+    'header': "Confirm Google Drive Setup",
     'usage': "{tr}gconf [auth token]"})
 async def gconf_(message: Message):
-    """ confirm creds """
+    """ Confirm Creds """
     await Worker(message).confirm_setup()
 
 
 @userge.on_cmd("gclear", about={
-    'header': "Clear GDrive Creds"})
+    'header': "Clear Google Drive Creds"})
 async def gclear_(message: Message):
-    """ clear creds """
+    """ Clear Creds """
     await Worker(message).clear()
 
 
 @userge.on_cmd("gset", about={
-    'header': "Set parent id",
+    'header': "Set Parent ID",
     'description': "set destination by setting parent_id (root path). "
                    "this path is like working directory :)",
     'usage': "{tr}gset [drive folder link]"})
 async def gset_(message: Message):
-    """ setup path """
+    """ Setup Path """
     await Worker(message).set_parent()
 
 
 @userge.on_cmd("greset", about={
-    'header': "Reset parent id"})
+    'header': "Reset Parent ID"})
 async def greset_(message: Message):
-    """ clear path """
+    """ Clear Path """
     await Worker(message).reset_parent()
 
 
 @userge.on_cmd("gfind", about={
-    'header': "Search files in GDrive",
+    'header': "Search Files in Google Drive",
     'flags': {
         '-l': "add limit to search (default limit 20)",
         '-f': "add to do a force search"},
     'usage': "{tr}gfind [search query]\n{tr}gfind -l10 [search query]"})
 async def gfind_(message: Message):
-    """ search files """
+    """ Search Files """
     await Worker(message).search()
 
 
 @userge.on_cmd("gls", about={
-    'header': "List files in GDrive Folder or Root",
+    'header': "List Files in Google Drive Folder or Root",
     'flags': {'-l': "add limit to list (default limit 20)"},
     'usage': "{tr}gls for view content in root\n{tr}gls -l10 add limit to it\n"
              "{tr}gls [drive folder link] (default limit 20)\n"
              "{tr}gls -l10 [drive folder link] (add limit)"})
 async def gls_(message: Message):
-    """ list files """
+    """ List Files """
     await Worker(message).list_folder()
 
 
 @userge.on_cmd("gmake", about={
-    'header': "Make folders in GDrive parent",
+    'header': "Make Folders in Google Drive Parent",
     'usage': "{tr}gmake [folder name]"})
 async def gmake_(message: Message):
-    """ make folder """
+    """ Make Folder """
     await Worker(message).make_folder()
 
 
 @userge.on_cmd("gshare", about={
-    'header': "Get Shareable Links for GDrive files",
+    'header': "Get Shareable Links for Google Drive Files",
     'usage': "{tr}gshare [file_id | file/folder link]"})
 async def gshare_(message: Message):
-    """ share files """
+    """ Share Files """
     await Worker(message).share()
 
 
 @userge.on_cmd("gup", about={
-    'header': "Upload files to GDrive",
+    'header': "Upload Files to Google Drive",
     'description': "set destination by setting parent_id, "
                    "use `{tr}gset` to set parent_id (root path).",
     'usage': "{tr}gup [file / folder path | direct link | reply to telegram file] "
@@ -1040,80 +1040,80 @@ async def gshare_(message: Message):
         "{tr}gup test.bin : reply to tg file", "{tr}gup downloads/100MB.bin | test.bin",
         "{tr}gup https://speed.hetzner.de/100MB.bin | testing upload.bin"]}, check_downpath=True)
 async def gup_(message: Message):
-    """ upload to gdrive """
+    """ Upload to Google Drive """
     await Worker(message).upload()
 
 
 @userge.on_cmd("gdown", about={
-    'header': "Download files from GDrive",
+    'header': "Download Files From Google Drive",
     'usage': "{tr}gdown [file_id | file/folder link]"}, check_downpath=True)
 async def gdown_(message: Message):
-    """ download from gdrive """
+    """ Download From Google Drive """
     await Worker(message).download()
 
 
 @userge.on_cmd("gcopy", about={
-    'header': "Copy files in GDrive",
+    'header': "Copy Files in Google Drive",
     'description': "set destination by setting parent_id, "
                    "use `{tr}gset` to set parent_id (root path).",
     'usage': "{tr}gcopy [file_id | file/folder link]"})
 async def gcopy_(message: Message):
-    """ copy files in gdrive """
+    """ Copy Files in Google Drive """
     await Worker(message).copy()
 
 
 @userge.on_cmd("gmove", about={
-    'header': "Move files in GDrive",
+    'header': "Move Files in Google Drive",
     'description': "set destination by setting parent_id, "
                    "use `{tr}gset` to set parent_id (root path).",
     'usage': "{tr}gmove [file_id | file/folder link]"})
 async def gmove_(message: Message):
-    """ move files in gdrive """
+    """ Move Files in Google Drive """
     await Worker(message).move()
 
 
 @userge.on_cmd("gdel", about={
-    'header': "Delete files in GDrive",
+    'header': "Delete Files in Google Drive",
     'usage': "{tr}gdel [file_id | file/folder link]"})
 async def gdel_(message: Message):
-    """ delete files in gdrive """
+    """ Delete Files in Google Drive """
     await Worker(message).delete()
 
 
 @userge.on_cmd("gempty", about={
-    'header': "Empty the Trash"})
+    'header': "Empty The Trash"})
 async def gempty_(message: Message):
-    """ empty trash """
+    """ Empty Trash """
     await Worker(message).empty()
 
 
 @userge.on_cmd("gget", about={
-    'header': "Get metadata from the given link in GDrive",
+    'header': "Get Metadata From the Given Link in Google Drive",
     'usage': "{tr}gget [file_id | file/folder link]"})
 async def gget_(message: Message):
-    """ get details """
+    """ Get Details """
     await Worker(message).get()
 
 
 @userge.on_cmd("ggetperm", about={
-    'header': "Get permissions of file/folder in GDrive",
+    'header': "Get Permissions of File/Folder in Google Drive",
     'usage': "{tr}ggetperm [file_id | file/folder link]"})
 async def ggetperm_(message: Message):
-    """ get permissions """
+    """ Get Permissions """
     await Worker(message).get_perms()
 
 
 @userge.on_cmd("gsetperm", about={
-    'header': "Set permissions to file/folder in GDrive",
+    'header': "Set Permissions to File/Folder in Google Drive",
     'usage': "{tr}gsetperm [file_id | file/folder link]"})
 async def gsetperm_(message: Message):
-    """ set permissions """
+    """ Set Permissions """
     await Worker(message).set_perms()
 
 
 @userge.on_cmd("gdelperm", about={
-    'header': "Remove all permissions of file/folder in GDrive",
+    'header': "Remove All Permissions of File/Folder in Google Drive",
     'usage': "{tr}gdelperm [file_id | file/folder link]"})
 async def gdelperm_(message: Message):
-    """ delete permissions """
+    """ Delete Permissions """
     await Worker(message).del_perms()
