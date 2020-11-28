@@ -40,17 +40,17 @@ async def alive(message: Message):
             _set_data(True)
     markup = None
     output = f"""
-**⏱ uptime** : `{userge.uptime}`
-**💡 version** : `{get_version()}`
-**⚙️ mode** : `{_get_mode().upper()}`
+**⏱ Uptime** : `{userge.uptime}`
+**💡 Version** : `{get_version()}`
+**⚙️ Mode** : `{_get_mode().upper()}`
 
-• **sudo**: `{_parse_arg(Config.SUDO_ENABLED)}`
-• **pm-guard**: `{_parse_arg(not Config.ALLOW_ALL_PMS)}`
-• **anti-spam**: `{_parse_arg(Config.ANTISPAM_SENTRY)}`"""
+• **Sudo**: `{_parse_arg(Config.SUDO_ENABLED)}`
+• **Pm-Guard**: `{_parse_arg(not Config.ALLOW_ALL_PMS)}`
+• **Anti-Spam**: `{_parse_arg(Config.ANTISPAM_SENTRY)}`"""
     if Config.HEROKU_APP:
-        output += f"\n• **dyno-saver**: `{_parse_arg(Config.RUN_DYNO_SAVER)}`"
+        output += f"\n• **Dyno-Saver**: `{_parse_arg(Config.RUN_DYNO_SAVER)}`"
     output += f"""
-• **unofficial**: `{_parse_arg(Config.LOAD_UNOFFICIAL_PLUGINS)}`
+• **Unofficial**: `{_parse_arg(Config.LOAD_UNOFFICIAL_PLUGINS)}`
 
     **__Python__**: `{versions.__python_version__}`
     **__Pyrogram__**: `{versions.__pyro_version__}`"""
