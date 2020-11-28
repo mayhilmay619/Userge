@@ -33,14 +33,14 @@ LOGO_PATH = 'resources/userge.png'
 
 
 @userge.on_cmd("rename", about={
-    'header': "Rename telegram files",
-    'flags': {'-d': "upload as document"},
+    'header': "Rename Telegram Files",
+    'flags': {'-d': "Upload as Document"},
     'usage': "{tr}rename [flags] [new_name_with_extention] : reply to telegram media",
     'examples': "{tr}rename -d test.mp4"}, del_pre=True, check_downpath=True)
 async def rename_(message: Message):
-    """ rename telegram files """
+    """ Rename Telegram Files """
     if not message.filtered_input_str:
-        await message.err("new name not found!")
+        await message.err("New Name Not Found!")
         return
     await message.edit("`Trying to Rename ...`")
     if message.reply_to_message and message.reply_to_message.media:
@@ -54,14 +54,14 @@ async def rename_(message: Message):
             await message.delete()
             await upload(message, Path(dl_loc), True)
     else:
-        await message.edit("Please read `.help rename`", del_in=5)
+        await message.edit("Please Read `.help rename`", del_in=5)
 
 
 @userge.on_cmd("convert", about={
-    'header': "Convert telegram files",
+    'header': "Convert Telegram Files",
     'usage': "reply {tr}convert to any media"}, del_pre=True, check_downpath=True)
 async def convert_(message: Message):
-    """ convert telegram files """
+    """ Convert Telegram Files """
     await message.edit("`Trying to Convert ...`")
     if message.reply_to_message and message.reply_to_message.media:
         message.text = '' if message.reply_to_message.document else ". -d"
@@ -75,18 +75,18 @@ async def convert_(message: Message):
             await message.delete()
             await upload(message, Path(dl_loc), True)
     else:
-        await message.edit("Please read `.help convert`", del_in=5)
+        await message.edit("Please Read `.help convert`", del_in=5)
 
 
 @userge.on_cmd("upload", about={
-    'header': "Upload files to telegram",
-    'flags': {'-d': "upload as document"},
+    'header': "Upload Files to Telegram",
+    'flags': {'-d': "Upload as Document"},
     'usage': "{tr}upload [flags] [file or folder path | link]",
     'examples': [
         "{tr}upload -d https://speed.hetzner.de/100MB.bin | test.bin",
         "{tr}upload downloads/test.mp4"]}, del_pre=True, check_downpath=True)
 async def uploadtotg(message: Message):
-    """ upload to telegram """
+    """ Upload to Telegram """
     path_ = message.filtered_input_str
     if not path_:
         await message.edit("invalid input!, check `.help .upload`", del_in=5)
@@ -113,7 +113,7 @@ async def uploadtotg(message: Message):
     try:
         string = Path(path_)
     except IndexError:
-        await message.edit("wrong syntax\n`.upload [path]`")
+        await message.edit("Wrong Syntax\n`.upload [path]`")
     else:
         await message.delete()
         await upload_path(message, string, del_path)
@@ -170,7 +170,7 @@ async def doc_upload(message: Message, path, del_path: bool = False, extra: str 
             parse_mode="html",
             disable_notification=True,
             progress=progress,
-            progress_args=(message, f"uploading {extra}", str(path.name))
+            progress_args=(message, f"Uploading {extra}", str(path.name))
         )
     except ValueError as e_e:
         await sent.edit(f"Skipping `{path}` due to {e_e}")
@@ -205,7 +205,7 @@ async def vid_upload(message: Message, path, del_path: bool = False, extra: str 
             parse_mode="html",
             disable_notification=True,
             progress=progress,
-            progress_args=(message, f"uploading {extra}", str(path.name))
+            progress_args=(message, f"Uploading {extra}", str(path.name))
         )
     except ValueError as e_e:
         await sent.edit(f"Skipping `{path}` due to {e_e}")
@@ -262,7 +262,7 @@ async def audio_upload(message: Message, path, del_path: bool = False, extra: st
             parse_mode="html",
             disable_notification=True,
             progress=progress,
-            progress_args=(message, f"uploading {extra}", str(path.name))
+            progress_args=(message, f"Uploading {extra}", str(path.name))
         )
     except ValueError as e_e:
         await sent.edit(f"Skipping `{path}` due to {e_e}")
@@ -293,7 +293,7 @@ async def photo_upload(message: Message, path, del_path: bool = False, extra: st
             parse_mode="html",
             disable_notification=True,
             progress=progress,
-            progress_args=(message, f"uploading {extra}", str(path.name))
+            progress_args=(message, f"Uploading {extra}", str(path.name))
         )
     except ValueError as e_e:
         await sent.edit(f"Skipping `{path}` due to {e_e}")
@@ -347,4 +347,4 @@ async def finalize(message: Message, msg: Message, start_t):
     else:
         end_t = datetime.now()
         m_s = (end_t - start_t).seconds
-        await message.edit(f"Uploaded in {m_s} seconds", del_in=10)
+        await message.edit(f"Uploaded in {m_s} Seconds", del_in=10)
